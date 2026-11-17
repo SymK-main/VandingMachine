@@ -4,404 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자판기 화면</title>
-    <style>
-        /* 코드에 사용한 모든 색상을 :root에 모아 관리 */
-        :root {
-            /* 배경 및 자판기 본체 색상 */
-            --bg-page: #f5f5f5;
-            --machine-red: #d32f2f;
-            --machine-border: #9a1c1c;
-            --side-red: #b71c1c;
-            --side-border: #7f0000;
-
-            /* 진열대 및 음료 칸 색상 */
-            --box-white: #ffffff;
-            --item-bg: #fafafa;
-            --border-gray: #cccccc;
-            --border-light: #dddddd;
-            --border-dark: #999999;
-
-            /* 액정 및 카드 단말기 색상 */
-            --led-bg: #1a1a1a;
-            --led-border: #333333;
-            --card-bg: #141414;
-            --card-pad-bg: #383838;
-            --card-pad-border: #555555;
-
-            /* 지폐 투입구 색상 */
-            --bill-outer-bg: #f0f0f0;
-            --bill-inner-bg: #cccccc;
-            --slot-dark: #222222;
-
-            /* 동전 투입구 및 반환 레버 색상 */
-            --coin-panel-bg: #dcd6b8;
-            --coin-panel-border: #a8a07d;
-            --lever-orange: #f59e0b;
-            --lever-border: #b45309;
-            --coin-gold: #e2b86b;
-            --coin-gold-border: #b58d3d;
-            --coin-silver: #cccccc;
-            --coin-silver-border: #777777;
-
-            /* 하단 배출구 및 검정 테두리 색상 */
-            --bottom-bg: #111111;
-            --color-black: #000000;
-        }
-
-        /* 박스 크기에 테두리와 안쪽 여백 포함 */
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            background-color: var(--bg-page);
-            margin: 0;
-            padding: 20px;
-        }
-
-        /* 자판기 전체 외곽 */
-        .machine {
-            max-width: 640px;
-            margin: 0 auto;
-            background-color: var(--machine-red);
-            border: 3px solid var(--machine-border);
-            padding: 18px;
-        }
-
-        /* 진열대 & 단말기 배치 */
-        .middle {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 18px;
-        }
-
-        /* 음료 진열대 */
-        .menu {
-            flex: 2;
-            background-color: var(--box-white);
-            border: 2px solid var(--border-dark);
-            padding: 12px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);  /* 한 줄에 3개 */
-            gap: 10px;
-        }
-
-        /* 음료 칸 */
-        .item {
-            border: 1px solid var(--border-gray);
-            padding: 10px 6px;
-            text-align: center;
-            background-color: var(--item-bg);
-        }
-
-        /* 음료 이미지 크기 고정 및 가운데 정렬 */
-        .drink-img {
-            width: 60px;
-            height: 70px;
-            object-fit: contain;
-            border: 1px solid var(--border-light);
-            background-color: var(--box-white);
-            display: block;
-            margin: 0 auto 6px auto;
-        }
-
-        /* 음료 이름 */
-        .drink-name {
-            margin: 4px 0 6px 0;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* 음료 가격 */
-        .price-row {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .price-row input[type="radio"] { /* 라디오 버튼으로 음료 선택 표시! */
-            margin: 0;
-            cursor: pointer;
-        }
-
-        /* 단말기 영역 */
-        .side {
-            flex: 1;
-            background-color: var(--side-red);
-            border: 2px solid var(--side-border);
-            padding: 14px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 14px;
-        }
-
-        /* 현재 남은 금액 표시 (검은 직사각형) */
-        .led-screen {
-            width: 100%;
-            height: 30px;
-            background-color: var(--led-bg);
-            border: 2px solid var(--led-border);
-        }
-
-        /* 카드 단말기 */
-        .card-reader {
-            width: 100%;
-            height: 68px;
-            background-color: var(--card-bg);
-            border: 2px solid var(--color-black);
-            border-radius: 4px;
-            padding: 10px 14px 10px 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        /* 이중 박스 사용해서 진짜 카드 단말기 처럼 */
-        .card-pad {
-            width: 75%;
-            height: 100%;
-            background-color: var(--card-pad-bg);
-            border: 1px solid var(--card-pad-border);
-        }
-
-        /* 지폐 투입구 -> 삼중박스 사용 */
-        .bill-acceptor {
-            width: 100%;
-            background-color: var(--bill-outer-bg);
-            border: 2px solid var(--border-gray);
-            border-radius: 4px;
-            padding: 8px;
-        }
-
-        .bill-inner {
-            background-color: var(--bill-inner-bg);
-            border: 1px solid var(--border-dark);
-            padding: 8px 6px;
-        }
-
-        .bill-slot {
-            width: 100%;
-            height: 6px;
-            background-color: var(--slot-dark);
-        }
-
-        /* 동전 투입구 + 반환 레버 */
-        .coin-panel {
-            width: 100%;
-            background-color: var(--coin-panel-bg);
-            border: 2px solid var(--coin-panel-border);
-            border-radius: 50px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .return-lever {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: var(--lever-orange);
-            border: 2px solid var(--lever-border);
-        }
-
-        .coin-outer {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background-color: var(--coin-gold);
-            border: 2px solid var(--coin-gold-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .coin-inner {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background-color: var(--coin-silver);
-            border: 1px solid var(--coin-silver-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .coin-hole {
-            width: 14px;
-            height: 3px;
-            background-color: var(--slot-dark);
-        }
-
-        /* 하단 음료 나오는 곳 */
-        .bottom {
-            width: 100%;
-            height: 80px;
-            background-color: var(--bottom-bg);
-            border: 2px solid var(--color-black);
-        }
-
-        /* 모바일일 때 세로 배치로 전환 */
-        @media (max-width: 500px) {
-            .middle {
-                flex-direction: column;
-            }
-            .menu {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
+    <!-- CSS 분리 및 연결 -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="machine">
-    <div class="middle">
-        <!-- 왼쪽 : 음료 진열대 -->
-        <section class="menu" aria-label="음료 진열대">
-            <div class="item">
-                <img class="drink-img" src="images/cola.png" alt="콜라">
-                <p class="drink-name">콜라</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="콜라">
-                    <span>1500원</span>
-                </label>
-            </div>
+<!-- main > h1 + 음료 선택 section + 결제 영역 section + 배출구 div -->
+<main class="vending-machine">
+    <h1 class="sr-only">음료 자판기</h1>
 
-            <div class="item">
-                <img class="drink-img" src="images/cola.png" alt="콜라">
-                <p class="drink-name">콜라</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="콜라">
-                    <span>1500원</span>
-                </label>
-            </div>
+    <div class="vending-machine__body">
+        <!-- 왼쪽: 음료 선택 영역 -->
+        <section class="vending-machine__products-section" aria-labelledby="products-title">
+            <h2 id="products-title" class="sr-only">음료 선택</h2>
 
-            <div class="item">
-                <img class="drink-img" src="images/sprite.png" alt="사이다">
-                <p class="drink-name">사이다</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="사이다">
-                    <span>1500원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/sprite.png" alt="사이다">
-                <p class="drink-name">사이다</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="사이다">
-                    <span>1500원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/OrangeJ.png" alt="오렌지주스">
-                <p class="drink-name">오렌지주스</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="오렌지주스">
-                    <span>1800원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/canCoffee.png" alt="캔커피">
-                <p class="drink-name">캔커피</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="캔커피">
-                    <span>1000원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/canCoffee.png" alt="캔커피">
-                <p class="drink-name">캔커피</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="캔커피">
-                    <span>1000원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/powerAde.png" alt="이온음료">
-                <p class="drink-name">이온음료</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="이온음료">
-                    <span>1800원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/powerAde.png" alt="이온음료">
-                <p class="drink-name">이온음료</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="이온음료">
-                    <span>1800원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/water.png" alt="생수">
-                <p class="drink-name">생수</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="생수">
-                    <span>800원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/water.png" alt="생수">
-                <p class="drink-name">생수</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="생수">
-                    <span>800원</span>
-                </label>
-            </div>
-
-            <div class="item">
-                <img class="drink-img" src="images/water.png" alt="생수">
-                <p class="drink-name">생수</p>
-                <label class="price-row">
-                    <input type="radio" name="drink" value="생수">
-                    <span>800원</span>
-                </label>
-            </div>
+            <!-- 라디오 버튼 그룹을 fieldset과 legend로 묶기 -->
+            <fieldset class="vending-machine__fieldset">
+                <legend class="sr-only">음료 선택 목록</legend>
+                <!-- JS가 DRY 원칙에 따라 12개 음료 슬롯을 자동 생성해 넣는 영역 -->
+                <div id="productGrid" class="vending-machine__products"></div>
+            </fieldset>
         </section>
 
-        <!-- 오른쪽 : 결제칸 -->
-        <aside class="side" aria-label="단말기 영역">
-            <!-- 현재 남은 금액 -->
-            <div class="led-screen"></div>
-
-            <!-- 카드 단말기 -->
-            <div class="card-reader">
-                <div class="card-pad"></div>
+        <!-- 오른쪽: 결제 영역 (aside 대신 독립 기능 영역인 section 사용) -->
+        <section class="vending-machine__payment-panel" aria-label="결제 영역">
+            <div class="vending-machine__led-screen" aria-hidden="true"></div>
+            <div class="vending-machine__card-reader" aria-hidden="true"></div>
+            <div class="vending-machine__bill-acceptor" aria-hidden="true"></div>
+            <div class="vending-machine__coin-panel" aria-hidden="true">
+                <div class="vending-machine__return-lever"></div>
+                <div class="vending-machine__coin-slot"></div>
             </div>
-
-            <!-- 지폐 투입구 -->
-            <div class="bill-acceptor">
-                <div class="bill-inner">
-                    <div class="bill-slot"></div>
-                </div>
-            </div>
-
-            <!-- 동전 투입구 & 반환 레버 -->
-            <div class="coin-panel">
-                <div class="return-lever"></div>
-                <div class="coin-outer">
-                    <div class="coin-inner">
-                        <div class="coin-hole"></div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        </section>
     </div>
 
-    <!-- 하단: 음료 배출구 박스 -->
-    <footer class="bottom"></footer>
+    <!-- 하단: 음료 배출구 (바닥글 footer가 아닌 장식 요소 div + aria-hidden="true") -->
+    <div class="vending-machine__dispenser" aria-hidden="true"></div>
 </main>
 
+<script>
+    // DRY원칙 -> 상품 데이터와 UI 구조를 분리
+    const baseDrinks = [
+        { productId: 'cola', name: '콜라', price: 2000, image: 'images/cola.png' },
+        { productId: 'sprite', name: '사이다', price: 2000, image: 'images/sprite.png' },
+        { productId: 'orange-juice', name: '오렌지주스', price: 1800, image: 'images/OrangeJ.png' },
+        { productId: 'can-coffee', name: '캔커피', price: 1000, image: 'images/canCoffee.png' },
+        { productId: 'powerade', name: '이온음료', price: 1300, image: 'images/powerAde.png' },
+        { productId: 'water', name: '생수', price: 800, image: 'images/water.png' }
+    ];
+
+    // 3x4(12칸) 진열 슬롯 생성: 상품 종류(productId)와 진열 위치(slotId)를 구분
+    const drinkSlots = [...baseDrinks, ...baseDrinks].map(function (drink, index) {
+        const slotNumber = String(index + 1).padStart(2, '0');
+        return {
+            slotId: drink.productId + '-slot-' + slotNumber, // 예: cola-slot-01, cola-slot-07
+            productId: drink.productId,
+            name: drink.name,
+            price: drink.price,
+            image: drink.image
+        };
+    });
+
+    // 모든 상품에 동일한 렌더링 규칙 적용 (label 안에 상품명과 가격을 함께 배치)
+    function createDrinkElement(slot) {
+        const label = document.createElement('label');
+        label.className = 'vending-machine__product';
+
+        const img = document.createElement('img');
+        img.className = 'vending-machine__product-image';
+        img.src = slot.image;
+        img.alt = ''; // 아래 span에서 상품명을 읽어주므로 중복 음성 출력 방지
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'vending-machine__product-name';
+        nameSpan.textContent = slot.name;
+
+        const priceRow = document.createElement('span');
+        priceRow.className = 'vending-machine__price-row';
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'drink';
+        input.value = slot.slotId;
+        input.className = 'vending-machine__radio';
+
+        const priceSpan = document.createElement('span');
+        priceSpan.textContent = slot.price.toLocaleString('ko-KR') + '원';
+
+        priceRow.append(input, priceSpan);
+        label.append(img, nameSpan, priceRow);
+
+        return label;
+    }
+
+    const productGrid = document.getElementById('productGrid');
+    drinkSlots.forEach(function (slot) {
+        productGrid.appendChild(createDrinkElement(slot));
+    });
+</script>
 </body>
 </html>
